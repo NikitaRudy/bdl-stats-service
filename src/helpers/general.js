@@ -1,21 +1,30 @@
 const R = require('ramda');
 const constants = require('../constants');
+const date = require('./date');
 
 const blankObject = Object.create(null);
 const throwErr = err => () => { throw err; };
-const secondsToMs = R.multiply(1000);
+
 const isErrorResponse = R.compose(R.complement(R.isNil), R.prop('errors'));
 const parseJson = R.tryCatch(JSON.parse, R.always(blankObject));
 
+const withLogs = (logfn, fn) => (...args) => fn(...args).then(v => logfn(v) || v);
+
 const startInMs = R.compose(
-    secondsToMs,
+    date.secondsToMs,
     R.prop('started_at')
 );
 
-const convertToKProp = R.when(Number.isInteger, R.flip(R.divide)(1000));
+const convertKNumber = R.when(
+    R.complement(Number.isInteger),
+    R.multiply(1000)
+);
 
-const prepareKproperties = R.evolve(
-    R.map(R.always(convertToKProp), constants.KProps)
+const prepareKProperties = R.evolve(
+    R.map(
+        R.always(convertKNumber),
+        constants.KProps,
+    )
 );
 
 const convertCommaNumberToNumber = R.compose(
@@ -28,11 +37,13 @@ const filterErrors = R.filter(
 );
 
 module.exports = {
-    filterErrors,
-    isErrorResponse,
     throwErr,
-    startInMs,
-    convertCommaNumberToNumber,
-    prepareKproperties,
+    isErrorResponse,
     parseJson,
+    startInMs,
+    convertKNumber,
+    prepareKProperties,
+    convertCommaNumberToNumber,
+    filterErrors,
+    withLogs,
 };

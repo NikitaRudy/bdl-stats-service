@@ -7,12 +7,10 @@ const FaceitErrors = {
 };
 
 const KProps = {
-    'XP/minute': 0.002,
-    'Gold/minute': 0.002,
-    'Hero Damage': 0.0015,
-    'Tower Damage': 0.0001,
-    'Hero Healing': 0.0015,
-    'Total Gold': 0.0001,
+    'Hero Damage': 0.0000015,
+    'Tower Damage': 0.0000001,
+    'Hero Healing': 0.0000015,
+    'Total Gold': 0.0000001,
 };
 
 const FantasyPoints = Object.assign({
@@ -20,6 +18,8 @@ const FantasyPoints = Object.assign({
     Deaths: 0.3,
     Assists: 0.15,
     Level: 0.05,
+    'XP/minute': 0.002,
+    'Gold/minute': 0.002,
 }, KProps);
 
 module.exports = {

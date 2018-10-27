@@ -9,6 +9,7 @@ const Player = new mongoose.Schema({
     nickname: String,
     player_stats: Object,
     matches: Number,
+    averages: Object,
 });
 
 module.exports = mongoose.model('Player', Player);

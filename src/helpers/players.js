@@ -5,6 +5,7 @@ const constants = require('../constants');
 
 const pickRadiantPlayers = R.path(['teams', '0', 'players']);
 const pickDirePlayers = R.path(['teams', '1', 'players']);
+const getPlayerStats = R.prop('player_stats');
 
 const selectPlayers = match => R.concat(
     pickRadiantPlayers(match),
@@ -23,18 +24,22 @@ const calculateFPForAttribute = (attribute, value) => R.multiply(
     value, R.prop(attribute, constants.FantasyPoints)
 );
 
-const calculateFantasyPoints = player => R.compose(
+const calculateAveragePerMatch = player => R.compose(
     Math.round,
-    R.flip(R.divide)(R.prop('matches', player)),
+    R.divide(R.__, R.prop('matches', player))
+);
+
+const calculateFantasyPoints = player => R.compose(
+    calculateAveragePerMatch(player),
     R.reduce((score, [k, v]) => R.add(score, calculateFPForAttribute(k, v)), 0),
     R.toPairs,
-    R.prop('player_stats'),
+    getPlayerStats,
 )(player);
 
 const calculateAndAssignFPScore = player => R.assoc('averageFP', calculateFantasyPoints(player), player);
 
 const preparePlayerStats = R.compose(
-    general.prepareKproperties,
+    general.prepareKProperties,
     R.map(general.convertCommaNumberToNumber),
     R.pick(R.keys(constants.FantasyPoints))
 );
@@ -43,18 +48,27 @@ const convertPlayerStats = R.evolve({ player_stats: preparePlayerStats });
 
 const convertPlayerStatsAcrossAllGames = R.map(convertPlayerStats);
 
+const calculateAndAssignAverages = player => R.compose(
+    R.assoc('averages', R.__, player),
+    R.map(calculateAveragePerMatch(player)),
+    getPlayerStats,
+)(player);
+
 const createPlayersTableFromFaceitRounds = R.compose(
     R.groupBy(R.prop('player_id')),
     R.flatten,
     R.map(selectPlayers),
-    matches.selectAllMatches,
 );
 
-const calculateTotalPlayerStatistics = R.compose(
-    R.map(calculateAndAssignFPScore),
-    R.map(sumStatsAndAssignTotalMatches),
-    R.map(convertPlayerStatsAcrossAllGames),
-    createPlayersTableFromFaceitRounds,
+const calculateTotalPlayerStatistics = R.when(
+    R.length,
+    R.compose(
+        R.map(calculateAndAssignAverages),
+        R.map(calculateAndAssignFPScore),
+        R.map(sumStatsAndAssignTotalMatches),
+        R.map(convertPlayerStatsAcrossAllGames),
+        createPlayersTableFromFaceitRounds,
+    ),
 );
 
 module.exports = {
@@ -62,4 +76,5 @@ module.exports = {
     pickRadiantPlayers,
     pickDirePlayers,
     calculateTotalPlayerStatistics,
+    calculateAndAssignAverages,
 };

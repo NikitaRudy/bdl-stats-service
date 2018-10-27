@@ -30,8 +30,8 @@ function getMatchStats(match) {
     return requestFaceitData(`/matches/${match}/stats`);
 }
 
-async function getHubSeasonMatches(limit = 50) {
-    const seasonMatches = [];
+async function getHubMatchesAfterDate(date, limit = 50) {
+    const matches = [];
 
     for (let offset = 0; ; offset += limit) {
         const response = await getHubMatches(offset, limit);
@@ -41,16 +41,20 @@ async function getHubSeasonMatches(limit = 50) {
         }
 
         const finished = helpers.matches.filterFinishedMatches(response.items);
-        const outOfSeasonIndex = helpers.matches.findOutOfDateMatchIndex(seasonStartDate)(finished);
+        const outOfSeasonIndex = helpers.matches.findOutOfDateMatchIndex(date)(finished);
 
         if (outOfSeasonIndex !== -1) {
-            seasonMatches.push(...finished.slice(0, outOfSeasonIndex));
+            matches.push(...finished.slice(0, outOfSeasonIndex));
             break;
         } else {
-            seasonMatches.push(...finished);
+            matches.push(...finished);
         }
     }
-    return seasonMatches;
+    return matches;
+}
+
+function getHubSeasonMatches() {
+    return getHubMatchesAfterDate(seasonStartDate);
 }
 
 function getHubSeasonMatchesStats(matches) {
@@ -69,4 +73,5 @@ module.exports = {
     getMatchStats,
     getHubSeasonMatches,
     getHubSeasonMatchesStats,
+    getHubMatchesAfterDate,
 };

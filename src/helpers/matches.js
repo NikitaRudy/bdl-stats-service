@@ -17,9 +17,12 @@ const filterFinishedMatches = R.filter(
     R.propEq('status', constants.MatchStatuses.FINISHED)
 );
 
+const findMatchesWhichAreNotInDB = R.differenceWith(R.eqProps('match_id'));
+
 module.exports = {
     isMatchOutOfDate,
     findOutOfDateMatchIndex,
     selectAllMatches,
     filterFinishedMatches,
+    findMatchesWhichAreNotInDB,
 };

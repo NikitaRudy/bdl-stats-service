@@ -1,14 +1,16 @@
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const cors = require('@koa/cors');
-const serve = require('koa-static');
-const path = require('path');
+const util = require('util');
 
 const router = require('./routes');
 const db = require('./db');
 
+require('dotenv').config();
+
 const PORT = process.env.PORT || 8080;
 const app = new Koa();
+const listen = util.promisify(app.listen.bind(app));
 
 app.use(async (ctx, next) => {
     try {
@@ -21,21 +23,21 @@ app.use(async (ctx, next) => {
 });
 
 app.use(cors());
-app.use(serve(path.join(__dirname, '../../build')));
 app.use(bodyParser());
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-function startServer() {
-    return new Promise((resolve, reject) => {
-        app.listen(
-            PORT, err => (err ? reject(err) : resolve(PORT))
-        );
-    });
+async function startServer() {
+    await listen(PORT);
+    return PORT;
 }
 
 (async function () {
-    await db.connect();
-    console.log('connected to the db');
-    console.log('listening on port ', await startServer());
+    try {
+        await db.connect();
+        console.log('connected to the db');
+        console.log('listening on port ', await startServer());
+    } catch (error) {
+        console.error('an error occured during boot: ', error);
+    }
 }());
