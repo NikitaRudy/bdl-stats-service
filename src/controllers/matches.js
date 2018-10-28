@@ -4,7 +4,7 @@ const helpers = require('../helpers');
 
 const getSavedMatches = () => DetailedMatch.find().lean();
 const getRecentHubMatches = () => services.getHubMatchesAfterDate(
-    helpers.date.substractDays(Date.now(), 31 * 7)
+    helpers.date.substractHours(Date.now(), 2)
 );
 const getNewHubMatches = async () => {
     return helpers.matches.findMatchesWhichAreNotInDB(

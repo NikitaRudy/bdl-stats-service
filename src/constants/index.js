@@ -10,7 +10,6 @@ const KProps = {
     'Hero Damage': 0.0000015,
     'Tower Damage': 0.0000001,
     'Hero Healing': 0.0000015,
-    'Total Gold': 0.0000001,
 };
 
 const FantasyPoints = Object.assign({
