@@ -6,7 +6,7 @@ const util = require('util');
 const router = require('./routes');
 const db = require('./db');
 
-require('dotenv').config();
+process.env.NODE_ENV === 'production' || require('dotenv').config();
 
 const PORT = process.env.PORT || 8080;
 const app = new Koa();

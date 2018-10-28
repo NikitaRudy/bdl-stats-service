@@ -1,4 +1,4 @@
-require('dotenv').config();
+process.env.NODE_ENV === 'production' || require('dotenv').config();
 
 const services = require('../services');
 const db = require('../db');
