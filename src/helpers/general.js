@@ -8,7 +8,9 @@ const throwErr = err => () => { throw err; };
 const isErrorResponse = R.compose(R.complement(R.isNil), R.prop('errors'));
 const parseJson = R.tryCatch(JSON.parse, R.always(blankObject));
 
-const withLogs = (logfn, fn) => (...args) => fn(...args).then(v => logfn(v) || v);
+const roundTo = R.curry(
+    (amount, num) => Number(num.toFixed(amount))
+);
 
 const startInMs = R.compose(
     date.secondsToMs,
@@ -37,6 +39,7 @@ const filterErrors = R.filter(
 );
 
 module.exports = {
+    roundTo,
     throwErr,
     isErrorResponse,
     parseJson,
@@ -45,5 +48,4 @@ module.exports = {
     prepareKProperties,
     convertCommaNumberToNumber,
     filterErrors,
-    withLogs,
 };

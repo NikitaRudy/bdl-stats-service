@@ -57,14 +57,17 @@ function getHubSeasonMatches() {
     return getHubMatchesAfterDate(seasonStartDate);
 }
 
-function getHubSeasonMatchesStats(matches) {
+function getHubMatchesStats(matches) {
     return Promise.all(
         R.compose(
             R.map(getMatchStats),
             R.pluck('match_id'),
         )(matches)
-    ).then(helpers.general.filterErrors);
+    )
+        .then(helpers.general.filterErrors)
+        .then(helpers.matches.selectAllMatches);
 }
+
 
 module.exports = {
     getHubInfo,
@@ -72,6 +75,6 @@ module.exports = {
     getHubMatches,
     getMatchStats,
     getHubSeasonMatches,
-    getHubSeasonMatchesStats,
+    getHubMatchesStats,
     getHubMatchesAfterDate,
 };

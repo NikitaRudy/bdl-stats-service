@@ -1,6 +1,5 @@
 const R = require('ramda');
 const general = require('./general');
-const matches = require('./matches');
 const constants = require('../constants');
 
 const pickRadiantPlayers = R.path(['teams', '0', 'players']);
@@ -25,7 +24,7 @@ const calculateFPForAttribute = (attribute, value) => R.multiply(
 );
 
 const calculateAveragePerMatch = player => R.compose(
-    Math.round,
+    general.roundTo(1),
     R.divide(R.__, R.prop('matches', player))
 );
 
@@ -60,15 +59,12 @@ const createPlayersTableFromFaceitRounds = R.compose(
     R.map(selectPlayers),
 );
 
-const calculateTotalPlayerStatistics = R.when(
-    R.length,
-    R.compose(
-        R.map(calculateAndAssignAverages),
-        R.map(calculateAndAssignFPScore),
-        R.map(sumStatsAndAssignTotalMatches),
-        R.map(convertPlayerStatsAcrossAllGames),
-        createPlayersTableFromFaceitRounds,
-    ),
+const calculateTotalPlayerStatistics = R.compose(
+    R.map(calculateAndAssignAverages),
+    R.map(calculateAndAssignFPScore),
+    R.map(sumStatsAndAssignTotalMatches),
+    R.map(convertPlayerStatsAcrossAllGames),
+    createPlayersTableFromFaceitRounds,
 );
 
 module.exports = {
